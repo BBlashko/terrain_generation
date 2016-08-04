@@ -30,6 +30,7 @@
 #define SHADER_COLOR    "vertexColor"
 #define SHADER_TEXCOORD "vertexTexcoord"
 #define SHADER_HEIGHTMAP "vertexHeightmap"
+#define SHADER_CURRENT_OBJECT "vertexCurrentObject"
 
 
 //==============================================================================
@@ -277,7 +278,6 @@ void generate_perlin_noise(GLfloat (&perlinNoise)[MESH_X_VERTICES_SIZE * MESH_Z_
     GLfloat baseNoise[MESH_X_VERTICES_SIZE][MESH_Z_VERTICES_SIZE];
     generate_base_noise(baseNoise, MESH_X_VERTICES_SIZE, MESH_Z_VERTICES_SIZE);
 
-    // GLfloat smoothNoiseSingle[MESH_X_VERTICES_SIZE * MESH_Z_VERTICES_SIZE];
     GLfloat smoothNoise[octaveCount][MESH_X_VERTICES_SIZE * MESH_Z_VERTICES_SIZE];
 
     float persistance = 0.5f;
@@ -303,8 +303,7 @@ void generate_perlin_noise(GLfloat (&perlinNoise)[MESH_X_VERTICES_SIZE * MESH_Z_
     for (int i = 0; i < width * height; i++)
     {
         perlinNoise[i] /= totalAmplitude;
-        // if (perlinNoise[i + j * width] > 1.0f || perlinNoise[i + j * width] < -1.0f)
-            // std::cout << perlinNoise[i] << std::endl;
+
     }
 }
 
@@ -317,56 +316,53 @@ void generate_skybox_vertices(GLfloat (&skyboxVertices)[36 * 5])
     float radius = 0.5f - MESH_X_VERTICES_SIZE / 2.0f;
 
     GLfloat cube_with_texture_vertices[] = {
-    //X       Y       Z         U       V
-    //front face
-   -radius,   -radius,   radius,      0.0f,   0.0f,
-    radius,   -radius,   radius,      1.0f,   0.0f,
-    radius,    radius,   radius,      1.0f,   1.0f,
-    radius,    radius,   radius,      1.0f,   1.0f,
-   -radius,    radius,   radius,      0.0f,   1.0f,
-   -radius,   -radius,   radius,      0.0f,   0.0f,
+        //X       Y       Z         U       V
 
-    //right face
-    radius,   -radius,   radius,      0.0f,   0.0f,
-    radius,   -radius,  -radius,      1.0f,   0.0f,
-    radius,    radius,  -radius,      1.0f,   1.0f,
-    radius,    radius,  -radius,      1.0f,   1.0f,
-    radius,    radius,   radius,      0.0f,   1.0f,
-    radius,   -radius,   radius,      0.0f,   0.0f,
+        -radius,   radius,   -radius,
+        -radius,   -radius,  -radius,
+        radius,    -radius,  -radius,
+        radius,    -radius,  -radius,
+        radius,    radius,   -radius,
+        -radius,   radius,   -radius,
 
+        -radius,   -radius,  radius,
+        -radius,   -radius,   -radius,
+        -radius,    radius,   -radius,
+        -radius,    radius,   -radius,
+        -radius,    radius,  radius,
+        -radius,   -radius,  radius,
 
-   //back face
-    radius,   -radius,  -radius,      0.0f,   0.0f,
-   -radius,   -radius,  -radius,      1.0f,   0.0f,
-   -radius,    radius,  -radius,      1.0f,   1.0f,
-   -radius,    radius,  -radius,      1.0f,   1.0f,
-    radius,    radius,  -radius,      0.0f,   1.0f,
-    radius,   -radius,  -radius,      0.0f,   0.0f,
+       //top face
+       radius,   -radius,   -radius,
+        radius,   -radius,   radius,
+        radius,   radius,  radius,
+        radius,   radius,  radius,
+       radius,   radius,  -radius,
+       radius,   -radius,  -radius,
 
-    //left face
-   -radius,   -radius,  -radius,      0.0f,   0.0f,
-   -radius,   -radius,   radius,      1.0f,   0.0f,
-   -radius,    radius,   radius,      1.0f,   1.0f,
-   -radius,    radius,   radius,      1.0f,   1.0f,
-   -radius,    radius,  -radius,      0.0f,   1.0f,
-   -radius,   -radius,  -radius,      0.0f,   0.0f,
+       //bottom face
+       -radius,  -radius,  radius,
+       -radius,  radius,  radius,
+        radius,  radius,   radius,
+        radius,  radius,   radius,
+       radius,  -radius,   radius,
+       -radius,  -radius,  radius,
 
+       //back face
+        -radius,   radius,  -radius,
+       radius,   radius,  -radius,
+       radius,    radius,  radius,
+       radius,    radius,  radius,
+        -radius,    radius,  radius,
+        -radius,   radius,  -radius,
 
-   //top face
-   -radius,   radius,   radius,      0.0f,   0.0f,
-    radius,   radius,   radius,      1.0f,   0.0f,
-    radius,   radius,  -radius,      1.0f,   1.0f,
-    radius,   radius,  -radius,      1.0f,   1.0f,
-   -radius,   radius,  -radius,      0.0f,   1.0f,
-   -radius,   radius,   radius,      0.0f,   0.0f,
-
-   //bottom face
-   -radius,  -radius,  -radius,      0.0f,   0.0f,
-    radius,  -radius,  -radius,      1.0f,   0.0f,
-    radius,  -radius,   radius,      1.0f,   1.0f,
-    radius,  -radius,   radius,      1.0f,   1.0f,
-   -radius,  -radius,   radius,      0.0f,   1.0f,
-   -radius,  -radius,  -radius,      0.0f,   0.0f,
+        //front face
+       -radius,   -radius,   -radius,
+        -radius,   -radius,   radius,
+        radius,   -radius,   -radius,
+        radius,    -radius,   -radius,
+       -radius,    -radius,   radius,
+       radius,   -radius,   radius,
     };
     std::copy(std::begin(cube_with_texture_vertices), std::end(cube_with_texture_vertices), std::begin(skyboxVertices));
 }
@@ -378,8 +374,6 @@ void generate_skybox_vertices(GLfloat (&skyboxVertices)[36 * 5])
 
 int main()
 {
-    // auto t_start = std::chrono::high_resolution_clock::now();
-
     GLFWwindow* window = initializeWindow();
     //initialize drawing
     glewExperimental = GL_TRUE;
@@ -401,33 +395,13 @@ int main()
     GLint model = glGetUniformLocation(program, "model");
     GLint view = glGetUniformLocation(program, "view");
     GLint projection = glGetUniformLocation(program, "proj");
-    GLint position_attrib = glGetAttribLocation(program, SHADER_POSITION);
-    GLint color_attrib = glGetAttribLocation(program, SHADER_COLOR);
-    GLint texcoord_attrib = glGetAttribLocation(program, SHADER_TEXCOORD);
-    GLint heightmap_attrib = glGetAttribLocation(program, SHADER_HEIGHTMAP);
+    GLint positionAttrib = glGetAttribLocation(program, SHADER_POSITION);
+    GLint colorAttrib = glGetAttribLocation(program, SHADER_COLOR);
+    GLint texcoordAttrib = glGetAttribLocation(program, SHADER_TEXCOORD);
+    GLint heightmapAttrib = glGetAttribLocation(program, SHADER_HEIGHTMAP);
+    GLint currentObject = glGetUniformLocation(program, SHADER_CURRENT_OBJECT);
 
-    //generate skybox **********************************************************
-    GLfloat skyboxVertices[36 * (3 + 2)];
-    memset(skyboxVertices, 0, sizeof(skyboxVertices));
-    generate_skybox_vertices(skyboxVertices);
-
-    GLuint vao_skybox;
-    glGenVertexArrays(1, &vao_skybox);
-    glBindVertexArray(vao_skybox);
-
-    GLuint vbo_skybox;
-    glGenBuffers(1, &vbo_skybox);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo_skybox);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), skyboxVertices,
-                 GL_STATIC_DRAW);
-
-    glEnableVertexAttribArray(position_attrib);
-    glVertexAttribPointer(position_attrib, 3, GL_FLOAT, GL_FALSE,
-                          5 * sizeof(GLfloat), 0);
-
-    glEnableVertexAttribArray(texcoord_attrib);
-    glVertexAttribPointer(texcoord_attrib, 2, GL_FLOAT, GL_FALSE,
-                        5 * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat)));
+    glUniform1f(currentObject, 0);
 
     //generate perlin noise ****************************************************
     GLfloat perlinNoise[MESH_X_VERTICES_SIZE * MESH_Z_VERTICES_SIZE];
@@ -435,8 +409,8 @@ int main()
     generate_perlin_noise(perlinNoise, MESH_X_VERTICES_SIZE, MESH_Z_VERTICES_SIZE, 5);
 
     //instantiate all textures *************************************************
-    GLuint textureIDs[6];
-    glGenTextures(6, textureIDs);
+    GLuint textureIDs[7];
+    glGenTextures(7, textureIDs);
 
     GLuint tex = glGetUniformLocation(program, "tex");
     GLuint texWater = glGetUniformLocation(program, "texWater");
@@ -444,12 +418,14 @@ int main()
     GLuint texGrass = glGetUniformLocation(program, "texGrass");
     GLuint texSnow= glGetUniformLocation(program, "texSnow");
     GLuint texMountain = glGetUniformLocation(program, "texMountain");
+    GLuint texSkybox = glGetUniformLocation(program, "texSkybox");
     glUniform1i(tex, 0);
     glUniform1i(texWater, 1);
     glUniform1i(texSand, 2);
     glUniform1i(texGrass, 3);
     glUniform1i(texMountain, 4);
     glUniform1i(texSnow, 5);
+    glUniform1i(texSkybox, 6);
 
     glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, textureIDs[0]);
@@ -525,6 +501,31 @@ int main()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 10.0f);
 
+    //skybox texture
+    std::vector<const GLchar*> faces;
+    faces.push_back("Textures/Skybox/right.png");
+    faces.push_back("Textures/Skybox/left.png");
+    faces.push_back("Textures/Skybox/top.png");
+    faces.push_back("Textures/Skybox/bottom.png");
+    faces.push_back("Textures/Skybox/front.png");
+    faces.push_back("Textures/Skybox/back.png");
+
+    glActiveTexture(GL_TEXTURE6);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, textureIDs[6]);
+    for(GLuint i = 0; i < faces.size(); i++)
+    {
+        image = SOIL_load_image(faces[i], &width, &height, 0, SOIL_LOAD_RGBA);
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
+    }
+    glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
+    SOIL_free_image_data(image);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameterf(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAX_ANISOTROPY_EXT, 10.0f);
+
     //Generate terrain mesh ****************************************************
 
     GLuint vao_terrain_mesh;
@@ -541,20 +542,20 @@ int main()
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertexBuffer), vertexBuffer,
                  GL_STATIC_DRAW);
 
-    glEnableVertexAttribArray(position_attrib);
-    glVertexAttribPointer(position_attrib, 3, GL_FLOAT, GL_FALSE,
+    glEnableVertexAttribArray(positionAttrib);
+    glVertexAttribPointer(positionAttrib, 3, GL_FLOAT, GL_FALSE,
                           10 * sizeof(GLfloat), 0);
 
-    glEnableVertexAttribArray(color_attrib);
-    glVertexAttribPointer(color_attrib, 3, GL_FLOAT, GL_FALSE,
+    glEnableVertexAttribArray(colorAttrib);
+    glVertexAttribPointer(colorAttrib, 3, GL_FLOAT, GL_FALSE,
                           10 * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat)));
 
-    glEnableVertexAttribArray(texcoord_attrib);
-    glVertexAttribPointer(texcoord_attrib, 2, GL_FLOAT, GL_FALSE,
+    glEnableVertexAttribArray(texcoordAttrib);
+    glVertexAttribPointer(texcoordAttrib, 2, GL_FLOAT, GL_FALSE,
                         10 * sizeof(GLfloat), (void*)(6 * sizeof(GLfloat)));
 
-    glEnableVertexAttribArray(heightmap_attrib);
-    glVertexAttribPointer(heightmap_attrib, 2, GL_FLOAT, GL_FALSE,
+    glEnableVertexAttribArray(heightmapAttrib);
+    glVertexAttribPointer(heightmapAttrib, 2, GL_FLOAT, GL_FALSE,
                         10 * sizeof(GLfloat), (void*)(8 * sizeof(GLfloat)));
 
     //set indices vbo***********************************************************
@@ -569,6 +570,29 @@ int main()
 
     glEnable(GL_PRIMITIVE_RESTART);
     glPrimitiveRestartIndex(-1);
+
+    //generate skybox **********************************************************
+    GLfloat skyboxVertices[36 * (3 + 2)];
+    memset(skyboxVertices, 0, sizeof(skyboxVertices));
+    generate_skybox_vertices(skyboxVertices);
+
+    GLuint vao_skybox;
+    glGenVertexArrays(1, &vao_skybox);
+    glBindVertexArray(vao_skybox);
+
+    GLuint vbo_skybox;
+    glGenBuffers(1, &vbo_skybox);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo_skybox);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), skyboxVertices,
+                 GL_STATIC_DRAW);
+
+    glEnableVertexAttribArray(positionAttrib);
+    glVertexAttribPointer(positionAttrib, 3, GL_FLOAT, GL_FALSE,
+                          3 * sizeof(GLfloat), 0);
+
+    // glEnableVertexAttribArray(texcoordAttrib);
+    // glVertexAttribPointer(texcoordAttrib, 2, GL_FLOAT, GL_FALSE,
+    //                     5 * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat)));
 
     //update, render loop ****************************************************************
 
@@ -592,14 +616,18 @@ int main()
 
         //Draw Everything
         //Draw mesh
+        glUniform1f(currentObject, 0);
         glBindVertexArray(vao_terrain_mesh);
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         glDrawElements(GL_TRIANGLE_STRIP, MESH_INDICES_COUNT, GL_UNSIGNED_INT, 0);
 
-        //Drawskybox
+        //Drawskybox (draw last)
+        glDepthFunc(GL_LEQUAL);
+        glUniform1f(currentObject, 1);
         glBindVertexArray(vao_skybox);
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         glDrawArrays(GL_TRIANGLES, 0, 36);
+        glDepthFunc(GL_LESS);
+
 
         //end with this
         glfwPollEvents();

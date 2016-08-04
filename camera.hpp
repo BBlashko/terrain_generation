@@ -19,7 +19,7 @@ public:
         _horizontal_angle = 2.35f;
         _vertical_angle = -0.5f;
         _initial_FOV = 45.0f;
-        _speed = 5.0f;
+        _speed = 10.0f;
         _mouse_speed = 0.005;
         glfwGetWindowSize(window, &_window_width, &_window_height);
         glfwSetCursorPos(window, _window_width/2, _window_height/2);
@@ -88,6 +88,7 @@ public:
         {
             _position -= _up * deltaTime * _speed;
         }
+
         // _FOV = _initial_FOV - 5 * scroll_callback();
         // std::cout << "position = " << to_string(_position) << std::endl;
         _FOV = _initial_FOV;

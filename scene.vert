@@ -3,13 +3,17 @@ in vec3 vertexColor;
 in vec2 vertexTexcoord;
 in vec2 vertexHeightmap;
 
+out vec3 fragmentPosition;
 out vec3 fragmentColor;
 out vec2 fragmentTexcoord;
 out float fragmentNoiseValue;
+out float fragmentCurrentObject;
 
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 proj;
+uniform float vertexCurrentObject;
+uniform float vertexFPS;
 
 uniform sampler2D tex;
 
@@ -19,6 +23,8 @@ void main()
 	fragmentColor = vertexColor;
 	fragmentTexcoord = vertexTexcoord;
 	fragmentNoiseValue = texture(tex, vertexHeightmap).r;
+	fragmentCurrentObject = vertexCurrentObject;
+	fragmentPosition = vertexPosition;
 
 	//position matrix
 	mat4 modelView = view * model;
